@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { gsap } from 'gsap';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'; // Import OrbitControls
 
 // Set up the scene
 const scene = new THREE.Scene();
@@ -36,6 +37,8 @@ let shoeBox, compressedShoe;
 
 gltfLoader.load('/my-threejs-app/model/nike_shoe_box.glb', (gltf) => {
     shoeBox = gltf.scene;
+    shoeBox.position.set(0, 0, 0); // Move the shoe box closer to the camera
+    shoeBox.rotation.y = Math.PI / 2; // Rotate the shoe box 90 degrees to the left
     scene.add(shoeBox);
 
     // If the model has animations, set up an animation mixer
@@ -62,18 +65,40 @@ gltfLoader.load('/my-threejs-app/model/nike_shoe_box.glb', (gltf) => {
 // Load the second GLB model
 gltfLoader.load('/my-threejs-app/model/shoe-optimized-arne.glb', (gltf) => {
     compressedShoe = gltf.scene;
-    compressedShoe.position.set(2, 0, 0); // Adjust position if necessary
+    compressedShoe.position.set(0, 0.8, 0); // Move the shoe closer to the camera above the box
+    compressedShoe.rotation.x = Math.PI / 4; // Increased tilt backwards (45 degrees)
+    compressedShoe.scale.set(0.2, 0.2, 0.2); // Scale the shoe down to 30%
     scene.add(compressedShoe);
+
+    // Create a yo-yo effect animation for the shoe
+    gsap.to(compressedShoe.position, {
+        y: 0.5, // Move up
+        duration: 5,
+        ease: "power1.inOut",
+        yoyo: true,
+        repeat: -1 // Repeat indefinitely
+    });
 }, undefined, (error) => {
     console.error('Error loading Shoe_compressed.glb:', error);
 });
 
-// Position the camera
-camera.position.z = 5;
+// Position the camera closer to the objects
+camera.position.set(0, 1, 0.5); // Move the camera closer for a zoomed-in effect
+
+// Add OrbitControls for camera controls
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; // an animation effect
+controls.dampingFactor = 0.25; // smooth dampening
+controls.screenSpacePanning = false; // prevent panning
+controls.maxPolarAngle = Math.PI / 2; // Limit vertical rotation
+controls.minPolarAngle = Math.PI / 2; // Keep vertical angle fixed
+controls.enableZoom = false;   // Disable zoom
+controls.enablePan = false;    // Disable panning
 
 // Animation function for the renderer
 function animate() {
     requestAnimationFrame(animate);
+    controls.update(); // Update controls on each frame
     renderer.render(scene, camera);
 }
 
