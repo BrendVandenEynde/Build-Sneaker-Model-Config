@@ -1,8 +1,14 @@
 import express from 'express';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
+// Create the Express app
 const app = express();
 const PORT = process.env.PORT || 3000; // Use the PORT environment variable or default to 3000
+
+// Get the directory name
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Serve static files from the 'dist' directory (or wherever your built files are)
 app.use(express.static(path.join(__dirname, 'dist')));
