@@ -1,18 +1,18 @@
-// server.js
-const express = require('express');
-const path = require('path');
-const app = express();
-const port = process.env.PORT || 4000;
+import express from 'express';
+import path from 'path';
 
-// Serve static files from the "dist" directory (where your build output will go)
+const app = express();
+const PORT = process.env.PORT || 3000; // Use the PORT environment variable or default to 3000
+
+// Serve static files from the 'dist' directory (or wherever your built files are)
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// Serve the main index.html file for all routes
+// Send all requests to index.html (for SPA routing)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 // Start the server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on port ${PORT}`);
 });
