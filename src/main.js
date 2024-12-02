@@ -21,6 +21,15 @@ const environmentMap = cubeTextureLoader.load([
 ]);
 scene.background = environmentMap;
 
+// Add lighting to the scene
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Soft white light
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // Bright white light
+directionalLight.position.set(5, 10, 7.5); // Position of the light
+directionalLight.castShadow = true; // Enable shadows
+scene.add(directionalLight);
+
 // Load GLTF models
 const gltfLoader = new GLTFLoader();
 let shoeBox, compressedShoe;
