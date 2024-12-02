@@ -7,13 +7,13 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "serve dist"
+    "start": "node server.js" 
   },
   "devDependencies": {
-    "serve": "^14.2.4",
-    "vite": "^6.0.1"
+    "vite": "^6.0.1"  
   },
   "dependencies": {
+    "express": "^4.21.1",
     "gsap": "^3.12.5",
     "three": "^0.171.0"
   }
