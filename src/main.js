@@ -1,109 +1,174 @@
 import * as THREE from 'three';
 import { gsap } from 'gsap';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'; // Import OrbitControls
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-// Set up the scene
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('app').appendChild(renderer.domElement);
 
-// Set up cube map placeholder (environment)
 const cubeTextureLoader = new THREE.CubeTextureLoader();
 const environmentMap = cubeTextureLoader.load([
-    '/my-threejs-app/cubeMap/px.png', // right
-    '/my-threejs-app/cubeMap/nx.png', // left
-    '/my-threejs-app/cubeMap/py.png', // top
-    '/my-threejs-app/cubeMap/ny.png', // bottom
-    '/my-threejs-app/cubeMap/pz.png', // front
-    '/my-threejs-app/cubeMap/nz.png'  // back
+    '/my-threejs-app/cubeMap/px.png', '/my-threejs-app/cubeMap/nx.png',
+    '/my-threejs-app/cubeMap/py.png', '/my-threejs-app/cubeMap/ny.png',
+    '/my-threejs-app/cubeMap/pz.png', '/my-threejs-app/cubeMap/nz.png'
 ]);
 scene.background = environmentMap;
 
-// Add lighting to the scene
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Soft white light
-scene.add(ambientLight);
+const stepMapping = [
+    { name: "Edit Laces", layer: "laces" },
+    { name: "Edit Inside", layer: "inside" },
+    { name: "Edit Shoe Cover", layer: "outside_1" },
+    { name: "Edit Edges", layer: "outside_2" },
+    { name: "Edit Sole / Underside", layer: "sole_1" },
+    { name: "Edit Sole / Underside 2", layer: "sole_2" }
+];
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // Bright white light
-directionalLight.position.set(5, 10, 7.5); // Position of the light
-directionalLight.castShadow = true; // Enable shadows
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+scene.add(ambientLight);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 10, 7.5);
+directionalLight.castShadow = true;
 scene.add(directionalLight);
 
-// Load GLTF models
 const gltfLoader = new GLTFLoader();
-let shoeBox, compressedShoe;
+let shoeBox, compressedShoe, currentStep = 1;
 
+// Available colors array
+const availableColors = [
+    "white", "red", "orange", "yellow", "green",
+    "blue", "indigo", "violet", "pink", "black", "gray"
+];
+
+// Function to get a random color from available colors
+function getRandomColor() {
+    const randomIndex = Math.floor(Math.random() * availableColors.length);
+    return availableColors[randomIndex];
+}
+
+// Load the shoe box model
 gltfLoader.load('/my-threejs-app/model/nike_shoe_box.glb', (gltf) => {
     shoeBox = gltf.scene;
-    shoeBox.position.set(0, 0, 0); // Move the shoe box closer to the camera
-    shoeBox.rotation.y = Math.PI / 2; // Rotate the shoe box 90 degrees to the left
+    shoeBox.position.set(0, 0, 0);
+    shoeBox.rotation.y = Math.PI / 2;
     scene.add(shoeBox);
-
-    // If the model has animations, set up an animation mixer
-    if (gltf.animations && gltf.animations.length) {
-        const mixer = new THREE.AnimationMixer(shoeBox);
-        gltf.animations.forEach((clip) => {
-            mixer.clipAction(clip).play();
-        });
-
-        // Update the mixer in the animation loop
-        const clock = new THREE.Clock();
-        const animate = () => {
-            requestAnimationFrame(animate);
-            const delta = clock.getDelta(); // seconds.
-            mixer.update(delta);
-            renderer.render(scene, camera);
-        };
-        animate();
-    }
 }, undefined, (error) => {
     console.error('Error loading nike_shoe_box.glb:', error);
 });
 
-// Load the second GLB model
+// Load the shoe model
 gltfLoader.load('/my-threejs-app/model/shoe-optimized-arne.glb', (gltf) => {
     compressedShoe = gltf.scene;
-    compressedShoe.position.set(0, 0.8, 0); // Move the shoe closer to the camera above the box
-    compressedShoe.rotation.x = Math.PI / 4; // Increased tilt backwards (45 degrees)
-    compressedShoe.scale.set(0.2, 0.2, 0.2); // Scale the shoe down to 30%
+    compressedShoe.position.set(0, 0.8, 0);
+    compressedShoe.rotation.x = Math.PI / 4;
+    compressedShoe.scale.set(0.2, 0.2, 0.2);
+
+    // Apply random colors to each mesh from available colors
+    compressedShoe.traverse((child) => {
+        if (child.isMesh) {
+            const randomColorName = getRandomColor(); // Get a random color name
+            const color = new THREE.Color(randomColorName); // Convert color name to THREE.Color
+            child.material = new THREE.MeshStandardMaterial({ color });
+        }
+    });
+
     scene.add(compressedShoe);
 
-    // Create a yo-yo effect animation for the shoe
+    // Add yo-yo animation for the shoe
     gsap.to(compressedShoe.position, {
-        y: 0.5, // Move up
+        y: 0.5,
         duration: 5,
         ease: "power1.inOut",
         yoyo: true,
-        repeat: -1 // Repeat indefinitely
+        repeat: -1
     });
 }, undefined, (error) => {
-    console.error('Error loading Shoe_compressed.glb:', error);
+    console.error('Error loading shoe-optimized-arne.glb:', error);
 });
 
-// Position the camera closer to the objects
-camera.position.set(0, 1, 0.5); // Move the camera closer for a zoomed-in effect
-
-// Add OrbitControls for camera controls
+camera.position.set(0, 2, 0.5);
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true; // an animation effect
-controls.dampingFactor = 0.25; // smooth dampening
-controls.screenSpacePanning = false; // prevent panning
-controls.maxPolarAngle = Math.PI / 2; // Limit vertical rotation
-controls.minPolarAngle = Math.PI / 2; // Keep vertical angle fixed
-controls.enableZoom = false;   // Disable zoom
-controls.enablePan = false;    // Disable panning
+controls.enableDamping = true;
+controls.dampingFactor = 0.25;
+controls.screenSpacePanning = false;
+controls.maxPolarAngle = Math.PI / 2;
+controls.minPolarAngle = Math.PI / 2;
+controls.enableZoom = false;
+controls.enablePan = false;
 
-// Animation function for the renderer
 function animate() {
     requestAnimationFrame(animate);
-    controls.update(); // Update controls on each frame
+    controls.update();
     renderer.render(scene, camera);
 }
-
-// Start animation
 animate();
+
+// Update shoe layer color/material
+function updateLayer(layerName, newMaterial) {
+    if (!compressedShoe) return;
+    compressedShoe.traverse((child) => {
+        if (child.isMesh && child.name === layerName) {
+            child.material = newMaterial;
+        }
+    });
+}
+
+// UI Event Listeners
+document.querySelectorAll('.color').forEach((colorButton) => {
+    colorButton.addEventListener('click', (e) => {
+        const color = e.target.getAttribute('data-color');
+        const layerName = getCurrentLayerName();
+        if (layerName) {
+            const newMaterial = new THREE.MeshStandardMaterial({ color });
+            updateLayer(layerName, newMaterial);
+        }
+    });
+});
+
+document.querySelectorAll('.material').forEach((materialButton) => {
+    materialButton.addEventListener('click', (e) => {
+        const materialImage = e.target.getAttribute('data-material');
+        const texture = new THREE.TextureLoader().load(`/shoeMaterial/${materialImage}.jpg`);
+        const newMaterial = new THREE.MeshStandardMaterial({ map: texture });
+        const layerName = getCurrentLayerName();
+        if (layerName) {
+            updateLayer(layerName, newMaterial);
+        }
+    });
+});
+
+// Step Navigation
+document.getElementById('prev-button').addEventListener('click', () => {
+    if (currentStep > 1) {
+        currentStep--;
+        updateStepIndicator();
+    }
+});
+
+document.getElementById('next-button').addEventListener('click', () => {
+    if (currentStep < 6) {
+        currentStep++;
+        updateStepIndicator();
+    }
+});
+
+// Initialize the main text to the first layer's name
+document.getElementById('main-text').textContent = stepMapping[currentStep - 1].name;
+
+function updateStepIndicator() {
+    document.getElementById('current-step').textContent = currentStep;
+    // Update the layer name in the main text based on the current step
+    const layerName = stepMapping[currentStep - 1].name; // Get the name of the current layer
+    document.getElementById('main-text').textContent = layerName; // Update the h1 text
+}
+
+function getCurrentLayerName() {
+    // Update the order of layers based on the new step mapping
+    const layers = stepMapping.map(step => step.layer);
+    return layers[currentStep - 1];
+}
 
 // Handle window resize
 window.addEventListener('resize', () => {
