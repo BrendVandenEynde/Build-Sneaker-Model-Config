@@ -35,6 +35,11 @@ scene.add(directionalLight);
 
 const gltfLoader = new GLTFLoader();
 let shoeBox, compressedShoe, currentStep = 1;
+let intersectedObject = null;
+
+// Raycaster setup
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
 // Available colors array
 const availableColors = [
@@ -98,6 +103,31 @@ controls.minPolarAngle = Math.PI / 2;
 controls.enableZoom = false;
 controls.enablePan = false;
 
+// Event Listener for mouse clicks
+window.addEventListener('click', (event) => {
+    // Calculate mouse position in normalized device coordinates (-1 to +1) for both axes
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // Update the raycaster with the camera and mouse position
+    raycaster.setFromCamera(mouse, camera);
+
+    // Check for intersections with the shoe model
+    if (compressedShoe) {
+        const intersects = raycaster.intersectObjects(compressedShoe.children, true);
+        if (intersects.length > 0) {
+            const selectedObject = intersects[0].object;
+
+            // Identify the clicked layer and jump to the corresponding step
+            const clickedLayer = stepMapping.find(step => step.layer === selectedObject.name);
+            if (clickedLayer) {
+                currentStep = stepMapping.indexOf(clickedLayer) + 1; // Update current step
+                updateStepIndicator();
+            }
+        }
+    }
+});
+
 function animate() {
     requestAnimationFrame(animate);
     controls.update();
@@ -159,13 +189,11 @@ document.getElementById('main-text').textContent = stepMapping[currentStep - 1].
 
 function updateStepIndicator() {
     document.getElementById('current-step').textContent = currentStep;
-    // Update the layer name in the main text based on the current step
-    const layerName = stepMapping[currentStep - 1].name; // Get the name of the current layer
-    document.getElementById('main-text').textContent = layerName; // Update the h1 text
+    const layerName = stepMapping[currentStep - 1].name;
+    document.getElementById('main-text').textContent = layerName;
 }
 
 function getCurrentLayerName() {
-    // Update the order of layers based on the new step mapping
     const layers = stepMapping.map(step => step.layer);
     return layers[currentStep - 1];
 }
