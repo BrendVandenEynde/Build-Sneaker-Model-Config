@@ -41,19 +41,16 @@ let intersectedObject = null;
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-// Available colors array
 const availableColors = [
     "white", "red", "orange", "yellow", "green",
     "blue", "indigo", "violet", "pink", "black", "gray"
 ];
 
-// Function to get a random color from available colors
 function getRandomColor() {
     const randomIndex = Math.floor(Math.random() * availableColors.length);
     return availableColors[randomIndex];
 }
 
-// Load the shoe box model
 gltfLoader.load('/my-threejs-app/model/nike_shoe_box.glb', (gltf) => {
     shoeBox = gltf.scene;
     shoeBox.position.set(0, 0, 0);
@@ -63,25 +60,22 @@ gltfLoader.load('/my-threejs-app/model/nike_shoe_box.glb', (gltf) => {
     console.error('Error loading nike_shoe_box.glb:', error);
 });
 
-// Load the shoe model
 gltfLoader.load('/my-threejs-app/model/shoe-optimized-arne.glb', (gltf) => {
     compressedShoe = gltf.scene;
     compressedShoe.position.set(0, 0.8, 0);
     compressedShoe.rotation.x = Math.PI / 4;
     compressedShoe.scale.set(0.2, 0.2, 0.2);
 
-    // Apply random colors to each mesh from available colors
     compressedShoe.traverse((child) => {
         if (child.isMesh) {
-            const randomColorName = getRandomColor(); // Get a random color name
-            const color = new THREE.Color(randomColorName); // Convert color name to THREE.Color
+            const randomColorName = getRandomColor();
+            const color = new THREE.Color(randomColorName);
             child.material = new THREE.MeshStandardMaterial({ color });
         }
     });
 
     scene.add(compressedShoe);
 
-    // Add yo-yo animation for the shoe
     gsap.to(compressedShoe.position, {
         y: 0.5,
         duration: 5,
@@ -103,25 +97,20 @@ controls.minPolarAngle = Math.PI / 2;
 controls.enableZoom = false;
 controls.enablePan = false;
 
-// Event Listener for mouse clicks
 window.addEventListener('click', (event) => {
-    // Calculate mouse position in normalized device coordinates (-1 to +1) for both axes
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-    // Update the raycaster with the camera and mouse position
     raycaster.setFromCamera(mouse, camera);
 
-    // Check for intersections with the shoe model
     if (compressedShoe) {
         const intersects = raycaster.intersectObjects(compressedShoe.children, true);
         if (intersects.length > 0) {
             const selectedObject = intersects[0].object;
 
-            // Identify the clicked layer and jump to the corresponding step
             const clickedLayer = stepMapping.find(step => step.layer === selectedObject.name);
             if (clickedLayer) {
-                currentStep = stepMapping.indexOf(clickedLayer) + 1; // Update current step
+                currentStep = stepMapping.indexOf(clickedLayer) + 1;
                 updateStepIndicator();
             }
         }
@@ -135,7 +124,6 @@ function animate() {
 }
 animate();
 
-// Update shoe layer color/material
 function updateLayer(layerName, newMaterial) {
     if (!compressedShoe) return;
     compressedShoe.traverse((child) => {
@@ -145,7 +133,6 @@ function updateLayer(layerName, newMaterial) {
     });
 }
 
-// UI Event Listeners
 document.querySelectorAll('.color').forEach((colorButton) => {
     colorButton.addEventListener('click', (e) => {
         const color = e.target.getAttribute('data-color');
@@ -169,7 +156,8 @@ document.querySelectorAll('.material').forEach((materialButton) => {
     });
 });
 
-// Step Navigation
+const orderForm = document.getElementById('order-form');
+
 document.getElementById('prev-button').addEventListener('click', () => {
     if (currentStep > 1) {
         currentStep--;
@@ -178,27 +166,34 @@ document.getElementById('prev-button').addEventListener('click', () => {
 });
 
 document.getElementById('next-button').addEventListener('click', () => {
-    if (currentStep < 6) {
+    if (currentStep < 7) {
         currentStep++;
         updateStepIndicator();
     }
 });
 
-// Initialize the main text to the first layer's name
-document.getElementById('main-text').textContent = stepMapping[currentStep - 1].name;
-
 function updateStepIndicator() {
     document.getElementById('current-step').textContent = currentStep;
-    const layerName = stepMapping[currentStep - 1].name;
-    document.getElementById('main-text').textContent = layerName;
+
+    if (currentStep <= 6) {
+        const layerName = stepMapping[currentStep - 1].name;
+        document.getElementById('main-text').textContent = layerName;
+        orderForm.classList.remove('visible');
+    } else if (currentStep === 7) {
+        document.getElementById('main-text').textContent = "Complete Your Order";
+        orderForm.classList.add('active'); // Match the CSS class
+    } else {
+        orderForm.classList.remove('active');
+    }    
 }
+
+document.getElementById('main-text').textContent = stepMapping[currentStep - 1].name;
 
 function getCurrentLayerName() {
     const layers = stepMapping.map(step => step.layer);
     return layers[currentStep - 1];
 }
 
-// Handle window resize
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();

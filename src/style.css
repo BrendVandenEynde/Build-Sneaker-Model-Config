@@ -196,3 +196,71 @@ h1#main-text {
 #step-indicator span {
   color: #ffffff;
 }
+
+/* Order Form Styling */
+.order-form {
+  position: fixed;
+  bottom: -100%;
+  left: 0;
+  width: 100%;
+  background-color: #6af244;
+  box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  transition: bottom 0.5s ease-in-out;
+  z-index: 10;
+}
+
+.order-form.active {
+  bottom: 0;
+}
+
+.order-form .form-content {
+  width: 90%;
+  max-width: 400px;
+}
+
+.order-form h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.order-form label {
+  font-size: 14px;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.order-form input,
+.order-form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.order-form button {
+  width: 100%;
+  padding: 10px;
+  background-color: #000000;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.order-form button:hover {
+  background-color: #303030;
+}
+
+.order-form.visible {
+  bottom: 0;
+  /* Make it slide into view */
+}
