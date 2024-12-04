@@ -1,7 +1,7 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
 import { GLTFLoader } from '../node_modules/three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
-import { gsap } from 'gsap';
+import { gsap } from '../node_modules/gsap/index.js';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
