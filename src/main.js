@@ -174,6 +174,7 @@ document.getElementById('next-button').addEventListener('click', () => {
     }
 });
 
+// Function to update the step indicator
 function updateStepIndicator() {
     document.getElementById('current-step').textContent = currentStep;
 
@@ -183,7 +184,7 @@ function updateStepIndicator() {
         orderForm.classList.remove('visible');
     } else if (currentStep === 7) {
         document.getElementById('main-text').textContent = "Complete Your Order";
-        orderForm.classList.add('active'); // Match the CSS class
+        orderForm.classList.add('active'); // Show order form for completion
     } else {
         orderForm.classList.remove('active');
     }
@@ -194,6 +195,40 @@ document.getElementById('main-text').textContent = stepMapping[currentStep - 1].
 function getCurrentLayerName() {
     const layers = stepMapping.map(step => step.layer);
     return layers[currentStep - 1];
+}
+
+// Function to show the overlay
+function showOverlay() {
+    const overlay = document.createElement('div');
+    overlay.id = 'overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = 0;
+    overlay.style.left = 0;
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    overlay.style.color = '#fff';
+    overlay.style.fontSize = '2em';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.textContent = "Your order has been send!"; // Customize this text if needed
+    document.body.appendChild(overlay);
+}
+
+// Event listener for the complete order button
+document.getElementById('complete-order-button').addEventListener('click', () => {
+    closeBoxLid(); // Close the box lid before completing the order
+    showOverlay(); // Show overlay after order completion
+});
+
+// Function to close the box lid
+function closeBoxLid() {
+    shoeBox.traverse((child) => {
+        if (child.isMesh && child.name === "boxLid") { // Ensure this matches your GLTF model
+            child.rotation.x = Math.PI / 2; // Close lid (adjust angle as needed)
+        }
+    });
 }
 
 window.addEventListener('resize', () => {
