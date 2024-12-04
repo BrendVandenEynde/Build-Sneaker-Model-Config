@@ -1,7 +1,7 @@
-import * as THREE from 'three';
+import * as THREE from '../node_modules/three/build/three.module.js';
+import { GLTFLoader } from '../node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
 import { gsap } from 'gsap';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -184,7 +184,7 @@ function updateStepIndicator() {
         orderForm.classList.add('active'); // Match the CSS class
     } else {
         orderForm.classList.remove('active');
-    }    
+    }
 }
 
 document.getElementById('main-text').textContent = stepMapping[currentStep - 1].name;
