@@ -11,9 +11,9 @@ document.getElementById('app').appendChild(renderer.domElement);
 
 const cubeTextureLoader = new THREE.CubeTextureLoader();
 const environmentMap = cubeTextureLoader.load([
-    '/my-threejs-app/cubeMap/px.png', '/my-threejs-app/cubeMap/nx.png',
-    '/my-threejs-app/cubeMap/py.png', '/my-threejs-app/cubeMap/ny.png',
-    '/my-threejs-app/cubeMap/pz.png', '/my-threejs-app/cubeMap/nz.png'
+    '/cubeMap/px.png', '/cubeMap/nx.png',
+    '/cubeMap/py.png', '/cubeMap/ny.png',
+    '/cubeMap/pz.png', '/cubeMap/nz.png'
 ]);
 scene.background = environmentMap;
 
@@ -51,7 +51,7 @@ function getRandomColor() {
     return availableColors[randomIndex];
 }
 
-gltfLoader.load('/my-threejs-app/model/nike_shoe_box.glb', (gltf) => {
+gltfLoader.load('/model/nike_shoe_box.glb', (gltf) => {
     shoeBox = gltf.scene;
     shoeBox.position.set(0, 0, 0);
     shoeBox.rotation.y = Math.PI / 2;
@@ -60,7 +60,7 @@ gltfLoader.load('/my-threejs-app/model/nike_shoe_box.glb', (gltf) => {
     console.error('Error loading nike_shoe_box.glb:', error);
 });
 
-gltfLoader.load('/my-threejs-app/model/shoe-optimized-arne.glb', (gltf) => {
+gltfLoader.load('/model/shoe-optimized-arne.glb', (gltf) => {
     compressedShoe = gltf.scene;
     compressedShoe.position.set(0, 0.8, 0);
     compressedShoe.rotation.x = Math.PI / 4;
