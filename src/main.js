@@ -76,6 +76,8 @@ gltfLoader.load('/model/nike_shoe_box.glb', (gltf) => {
         }
     });
 
+    openBoxLid(); // Open the box lid by default
+
     // Create a clock for the animation loop
     const clock = new THREE.Clock();
     const animate = () => {
@@ -253,28 +255,34 @@ document.getElementById('complete-order-button').addEventListener('click', () =>
 function openBoxLid() {
     console.log('Opening the box lid');
     shoeBox.traverse((child) => {
-        if (child.isMesh && child.name === "Lid") { // Replace with correct name
-            child.rotation.x = -Math.PI / 4; // Adjust to your needs
-            if (mixer) {
-                // Stop any animation affecting the lid
-                mixer.stopAllAction();
-            }
+        if (child.isMesh && child.name === "Plane_Plane_002_Material_001_TOP_0") { // Use the correct mesh name
+            gsap.to(child.rotation, {
+                x: -Math.PI / 4, // Adjust the angle as needed
+                duration: 0.5,
+                ease: "power1.inOut",
+            });
         }
     });
+    if (mixer) {
+        mixer.stopAllAction(); // Stop all animations
+    }
 }
 
 // Function to close the box lid
 function closeBoxLid() {
     console.log('Closing the box lid');
     shoeBox.traverse((child) => {
-        if (child.isMesh && child.name === "Lid") { // Replace with correct name
-            child.rotation.x = Math.PI / 2; // Adjust to your needs
-            if (mixer) {
-                // Stop any animation affecting the lid
-                mixer.stopAllAction();
-            }
+        if (child.isMesh && child.name === "Plane_Plane_002_Material_001_TOP_0") { // Use the correct mesh name
+            gsap.to(child.rotation, {
+                x: Math.PI / 2, // Adjust the angle as needed
+                duration: 0.5,
+                ease: "power1.inOut",
+            });
         }
     });
+    if (mixer) {
+        mixer.stopAllAction(); // Stop all animations
+    }
 }
 
 window.addEventListener('resize', () => {
