@@ -36,7 +36,9 @@ directionalLight.castShadow = true;
 scene.add(directionalLight);
 
 const gltfLoader = new GLTFLoader();
-let shoeBox, compressedShoe, currentStep = 1;
+let shoeBox, mixer;
+let compressedShoe;
+let currentStep = 1;
 let intersectedObject = null;
 
 // Raycaster setup
@@ -58,6 +60,31 @@ gltfLoader.load('/model/nike_shoe_box.glb', (gltf) => {
     shoeBox.position.set(0, 0, 0);
     shoeBox.rotation.y = Math.PI / 2;
     scene.add(shoeBox);
+
+    // If the model has animations, set up an animation mixer
+    if (gltf.animations && gltf.animations.length) {
+        mixer = new THREE.AnimationMixer(shoeBox);
+        gltf.animations.forEach((clip) => {
+            mixer.clipAction(clip).play();
+        });
+    }
+
+    // Ensure the box lid name is correct
+    shoeBox.traverse((child) => {
+        if (child.isMesh) {
+            console.log('Mesh name:', child.name); // Log mesh names
+        }
+    });
+
+    // Create a clock for the animation loop
+    const clock = new THREE.Clock();
+    const animate = () => {
+        requestAnimationFrame(animate);
+        const delta = clock.getDelta(); // seconds.
+        if (mixer) mixer.update(delta); // Update only if mixer exists
+        renderer.render(scene, camera);
+    };
+    animate();
 }, undefined, (error) => {
     console.error('Error loading nike_shoe_box.glb:', error);
 });
@@ -222,11 +249,30 @@ document.getElementById('complete-order-button').addEventListener('click', () =>
     showOverlay(); // Show overlay after order completion
 });
 
+// Function to open the box lid
+function openBoxLid() {
+    console.log('Opening the box lid');
+    shoeBox.traverse((child) => {
+        if (child.isMesh && child.name === "Lid") { // Replace with correct name
+            child.rotation.x = -Math.PI / 4; // Adjust to your needs
+            if (mixer) {
+                // Stop any animation affecting the lid
+                mixer.stopAllAction();
+            }
+        }
+    });
+}
+
 // Function to close the box lid
 function closeBoxLid() {
+    console.log('Closing the box lid');
     shoeBox.traverse((child) => {
-        if (child.isMesh && child.name === "boxLid") { // Ensure this matches your GLTF model
-            child.rotation.x = Math.PI / 2; // Close lid (adjust angle as needed)
+        if (child.isMesh && child.name === "Lid") { // Replace with correct name
+            child.rotation.x = Math.PI / 2; // Adjust to your needs
+            if (mixer) {
+                // Stop any animation affecting the lid
+                mixer.stopAllAction();
+            }
         }
     });
 }
