@@ -245,9 +245,29 @@ function showOverlay() {
     document.body.appendChild(overlay);
 }
 
-// Event listener for the complete order button
+// Final position of the shoe when it goes into the box
+const shoeFinalPositionY = 0; // Adjust this value to ensure it's inside the box
+
 document.getElementById('complete-order-button').addEventListener('click', () => {
     closeBoxLid(); // Close the box lid before completing the order
+
+    // Remove any existing tweens to prevent conflicts
+    gsap.killTweensOf(compressedShoe.position);
+
+    // Animate the shoe going down into the box
+    gsap.to(compressedShoe.position, {
+        y: shoeFinalPositionY, // Move to the desired Y position
+        duration: 4, // Duration of the animation (adjust as needed)
+        ease: "power1.inOut", // Easing function for smoothness
+        onComplete: () => {
+            // Pause for a few seconds after the animation
+            gsap.delayedCall(2, () => {
+                // Ensure the shoe stays at the final position
+                compressedShoe.position.y = shoeFinalPositionY; // Set final position explicitly
+            });
+        }
+    });
+
     showOverlay(); // Show overlay after order completion
 });
 
@@ -255,11 +275,12 @@ document.getElementById('complete-order-button').addEventListener('click', () =>
 function openBoxLid() {
     console.log('Opening the box lid');
     shoeBox.traverse((child) => {
-        if (child.isMesh && child.name === "Plane_Plane_002_Material_001_TOP_0") { // Use the correct mesh name
+        if (child.isMesh && child.name === "Plane_Plane_002_Material_001_TOP_0") { // Updated name
+            // Use GSAP to animate the rotation to -120 degrees
             gsap.to(child.rotation, {
-                x: -Math.PI / 4, // Adjust the angle as needed
-                duration: 0.5,
-                ease: "power1.inOut",
+                x: -120 * (Math.PI / 180), // Open to -120 degrees
+                duration: 2, // Animation duration in seconds
+                ease: "power1.inOut" // Easing function for smoothness
             });
         }
     });
@@ -272,11 +293,12 @@ function openBoxLid() {
 function closeBoxLid() {
     console.log('Closing the box lid');
     shoeBox.traverse((child) => {
-        if (child.isMesh && child.name === "Plane_Plane_002_Material_001_TOP_0") { // Use the correct mesh name
+        if (child.isMesh && child.name === "Plane_Plane_002_Material_001_TOP_0") { // Updated name
+            // Use GSAP to animate the rotation to 0 degrees
             gsap.to(child.rotation, {
-                x: Math.PI / 2, // Adjust the angle as needed
-                duration: 0.5,
-                ease: "power1.inOut",
+                x: 0 * (Math.PI / 180), // Close to 0 degrees
+                duration: 10, // Animation duration in seconds
+                ease: "power1.inOut" // Easing function for smoothness
             });
         }
     });
