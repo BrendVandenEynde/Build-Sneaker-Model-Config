@@ -286,7 +286,7 @@ function openBoxLid() {
             // Use GSAP to animate the rotation to -120 degrees
             gsap.to(child.rotation, {
                 x: -120 * (Math.PI / 180), // Open to -120 degrees
-                duration: 2, // Animation duration in seconds
+                duration: 0.1, // Animation duration in seconds
                 ease: "power1.inOut" // Easing function for smoothness
             });
         }
