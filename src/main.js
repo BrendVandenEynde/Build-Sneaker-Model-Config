@@ -156,6 +156,12 @@ function animate() {
 }
 animate();
 
+function validateEmail(email) {
+    // Regular expression for validating email format
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+}
+
 function updateLayer(layerName, newMaterial) {
     if (!compressedShoe) return;
     compressedShoe.traverse((child) => {
@@ -288,7 +294,7 @@ document.getElementById('complete-order-button').addEventListener('click', async
 
             // Submit order data to API
             try {
-                const response = await fetch('https://your-api-endpoint.com/orders', {
+                const response = await fetch('https://build-configurator-back-end.onrender.com/api/v1/orders', {
                     method: 'POST', // Use POST method for creating new order
                     headers: {
                         'Content-Type': 'application/json', // Send JSON data
