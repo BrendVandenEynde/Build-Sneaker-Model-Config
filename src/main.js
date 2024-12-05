@@ -249,8 +249,9 @@ function showOverlay() {
 // Final position of the shoe when it goes into the box
 const shoeFinalPositionY = -0.9; // Adjust this value to ensure it's inside the box
 
-document.getElementById('complete-order-button').addEventListener('click', () => {
-    closeBoxLid(); // Close the box lid before completing the order
+document.getElementById('complete-order-button').addEventListener('click', async () => {
+    // Close the box lid before completing the order
+    closeBoxLid();
 
     // Remove any existing tweens to prevent conflicts
     gsap.killTweensOf(compressedShoe.position);
@@ -261,9 +262,53 @@ document.getElementById('complete-order-button').addEventListener('click', () =>
         y: shoeFinalPositionY, // Move to the desired Y position
         duration: 4, // Duration of the animation (adjust as needed)
         ease: "power1.inOut", // Easing function for smoothness
-        onComplete: () => {
+        onComplete: async () => {
             // Ensure the shoe stays at the final position
             compressedShoe.position.y = shoeFinalPositionY; // Set final position explicitly
+
+            // Collect order data from input fields
+            const name = document.getElementById('name').value;
+            const shoeSize = document.getElementById('shoe-size').value;
+            const address = document.getElementById('address').value;
+            const emailInput = document.getElementById('email'); // Ensure this matches your actual input field ID
+            const email = emailInput.value;
+
+            // Validate the inputs
+            if (!name || !shoeSize || !address || !validateEmail(email)) {
+                alert("Please fill out all fields correctly before completing the order.");
+                return;
+            }
+
+            const orderDetails = {
+                name,
+                shoeSize,
+                address,
+                email,
+            };
+
+            // Submit order data to API
+            try {
+                const response = await fetch('https://your-api-endpoint.com/orders', {
+                    method: 'POST', // Use POST method for creating new order
+                    headers: {
+                        'Content-Type': 'application/json', // Send JSON data
+                    },
+                    body: JSON.stringify(orderDetails), // Convert the order data to JSON
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+
+                const responseData = await response.json(); // Parse the response as JSON
+
+                // Show confirmation overlay
+                showOverlay(); // Call your function to show the order confirmation overlay
+                console.log("Order successful:", responseData);
+            } catch (error) {
+                console.error('Error submitting the order:', error);
+                alert("There was an error submitting your order. Please try again.");
+            }
         }
     });
 
@@ -274,7 +319,6 @@ document.getElementById('complete-order-button').addEventListener('click', () =>
         duration: 4, // Match the duration to the position animation
         ease: "power1.inOut" // Easing function for smoothness
     });
-
     showOverlay(); // Show overlay after order completion
 });
 
