@@ -23,9 +23,9 @@ const stepMapping = [
     { name: "Edit Laces", layer: "laces" },
     { name: "Edit Inside", layer: "inside" },
     { name: "Edit Shoe Cover", layer: "outside_1" },
-    { name: "Edit Edges", layer: "outside_2" },
-    { name: "Edit Sole / Underside", layer: "sole_1" },
-    { name: "Edit Sole / Underside 2", layer: "sole_2" }
+    { name: "Edit heel tab", layer: "outside_2" },
+    { name: "Quarter + inner outlining ", layer: "sole_1" },
+    { name: "Edit Sole", layer: "sole_2" }
 ];
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -55,10 +55,11 @@ function getRandomColor() {
     return availableColors[randomIndex];
 }
 
-gltfLoader.load('/model/nike_shoe_box.glb', (gltf) => {
+gltfLoader.load('/model/shoeBoxSwear.glb', (gltf) => {
     shoeBox = gltf.scene;
-    shoeBox.position.set(0, 0, 0);
+    shoeBox.position.set(0, -1, 0);
     shoeBox.rotation.y = Math.PI / 2;
+    shoeBox.scale.set(4, 4, 4);
     scene.add(shoeBox);
 
     // If the model has animations, set up an animation mixer
@@ -93,9 +94,9 @@ gltfLoader.load('/model/nike_shoe_box.glb', (gltf) => {
 
 gltfLoader.load('/model/shoe-optimized-arne.glb', (gltf) => {
     compressedShoe = gltf.scene;
-    compressedShoe.position.set(0, 0.8, 0);
+    compressedShoe.position.set(0, 0.4, 0);
     compressedShoe.rotation.x = Math.PI / 4;
-    compressedShoe.scale.set(0.2, 0.2, 0.2);
+    compressedShoe.scale.set(0.5, 0.5, 0.5);
 
     compressedShoe.traverse((child) => {
         if (child.isMesh) {
@@ -108,7 +109,7 @@ gltfLoader.load('/model/shoe-optimized-arne.glb', (gltf) => {
     scene.add(compressedShoe);
 
     gsap.to(compressedShoe.position, {
-        y: 0.5,
+        y: 0.3,
         duration: 5,
         ease: "power1.inOut",
         yoyo: true,
@@ -246,26 +247,32 @@ function showOverlay() {
 }
 
 // Final position of the shoe when it goes into the box
-const shoeFinalPositionY = 0; // Adjust this value to ensure it's inside the box
+const shoeFinalPositionY = -0.9; // Adjust this value to ensure it's inside the box
 
 document.getElementById('complete-order-button').addEventListener('click', () => {
     closeBoxLid(); // Close the box lid before completing the order
 
     // Remove any existing tweens to prevent conflicts
     gsap.killTweensOf(compressedShoe.position);
+    gsap.killTweensOf(compressedShoe.rotation);
 
-    // Animate the shoe going down into the box
+    // Animate the shoe going down into the box and rotating it
     gsap.to(compressedShoe.position, {
         y: shoeFinalPositionY, // Move to the desired Y position
         duration: 4, // Duration of the animation (adjust as needed)
         ease: "power1.inOut", // Easing function for smoothness
         onComplete: () => {
-            // Pause for a few seconds after the animation
-            gsap.delayedCall(2, () => {
-                // Ensure the shoe stays at the final position
-                compressedShoe.position.y = shoeFinalPositionY; // Set final position explicitly
-            });
+            // Ensure the shoe stays at the final position
+            compressedShoe.position.y = shoeFinalPositionY; // Set final position explicitly
         }
+    });
+
+    gsap.to(compressedShoe.rotation, {
+        x: 0, // Set the X rotation to 0 (flat)
+        y: 0, // You can also adjust Y if needed
+        z: 0, // You can also adjust Z if needed
+        duration: 4, // Match the duration to the position animation
+        ease: "power1.inOut" // Easing function for smoothness
     });
 
     showOverlay(); // Show overlay after order completion
