@@ -275,12 +275,6 @@ document.getElementById('complete-order-button').addEventListener('click', async
             const address = document.getElementById('address').value;
             const email = document.getElementById('email').value;
 
-            // Validate form inputs
-            if (!name || !shoeSize || !address || !validateEmail(email)) {
-                alert("Please fill out all fields correctly before completing the order.");
-                return;
-            }
-
             // Collect layer details from the shoe model
             const layers = {};
             stepMapping.forEach(({ layer }) => {
@@ -322,7 +316,7 @@ document.getElementById('complete-order-button').addEventListener('click', async
 
                 const responseData = await response.json();
                 console.log("Order successfully created:", responseData);
-                showOverlay(); // Display order confirmation overlay
+                resetFields(); // Reset the fields here after showing the overlay
             } catch (error) {
                 console.error("Error completing order:", error);
                 alert("There was an issue submitting your order. Please try again.");
@@ -337,6 +331,7 @@ document.getElementById('complete-order-button').addEventListener('click', async
         duration: 4,
         ease: "power1.inOut",
     });
+
     showOverlay(); // Show overlay after order completion
 });
 
