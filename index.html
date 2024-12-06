@@ -90,60 +90,143 @@
           const colorsDiv = document.querySelector(".colors");
           const materialsDisplay = document.getElementById("materials-section");
           const shoeConfigInput = document.getElementById("shoe-configuration");
+          const orderForm = document.getElementById("order-form");
+          const completeOrderButton = document.getElementById("complete-order-button");
+
           let currentStep = 1;
 
-          // Initial setup
-          colorsDiv.classList.add("show"); // Show colors by default
-
-          materialsDisplay.classList.remove("show"); // Hide materials by default
+          // Initial shoe configuration with predefined colors (example values)
           const shoeConfig = {
-            inside: { color: null, material: null },
-            laces: { color: null, material: null },
-            outside1: { color: null, material: null },
-            outside2: { color: null, material: null },
-            sole1: { color: null, material: null },
-            sole2: { color: null, material: null },
+            inside: { color: "red", material: "none selected" }, // Default colors
+            laces: { color: "blue", material: "none selected" },
+            outside1: { color: "green", material: "none selected" },
+            outside2: { color: "yellow", material: "none selected" },
+            sole1: { color: "black", material: "none selected" },
+            sole2: { color: "white", material: "none selected" },
           };
 
+          // Reflect initial configuration in the input
+          shoeConfigInput.value = JSON.stringify(shoeConfig);
+          console.log("Initial Configuration:", shoeConfig);
+
+          // Toggle between color and material selection
           materialButton.addEventListener("click", () => {
-            if (colorsDiv.classList.contains("show")) {
-              colorsDiv.classList.remove("show");
-              materialsDisplay.classList.add("show");
-              materialButton.textContent = "Color";
-            } else {
-              colorsDiv.classList.add("show");
-              materialsDisplay.classList.remove("show");
-              materialButton.textContent = "Material";
-            }
+            colorsDiv.classList.toggle("show");
+            materialsDisplay.classList.toggle("show");
+            materialButton.textContent = colorsDiv.classList.contains("show") ? "Material" : "Color";
           });
 
+          // Update configuration based on selection
           document.querySelectorAll(".color, .material").forEach((element) => {
             element.addEventListener("click", (e) => {
               e.preventDefault();
 
               const isColor = element.classList.contains("color");
-              const selectedValue = isColor
-                ? element.dataset.color
-                : element.dataset.material;
-
+              const selectedValue = isColor ? element.dataset.color : element.dataset.material;
               const layerKeys = ["inside", "laces", "outside1", "outside2", "sole1", "sole2"];
-              shoeConfig[layerKeys[currentStep - 1]] = isColor
-                ? { ...shoeConfig[layerKeys[currentStep - 1]], color: selectedValue }
-                : { ...shoeConfig[layerKeys[currentStep - 1]], material: selectedValue };
 
+              // Update the corresponding layer in the shoeConfig object
+              const currentLayer = layerKeys[currentStep - 1];
+              if (isColor) {
+                // If it's a color selection, update the color
+                shoeConfig[currentLayer].color = selectedValue;
+              } else {
+                // If it's a material selection, update the material
+                shoeConfig[currentLayer].material = selectedValue;
+              }
+
+              // Reflect updated configuration
               shoeConfigInput.value = JSON.stringify(shoeConfig);
               console.log("Updated Configuration:", shoeConfig);
             });
           });
 
+          // Step navigation
           document.getElementById("prev-button").addEventListener("click", () => {
             if (currentStep > 1) currentStep--;
             document.getElementById("current-step").textContent = currentStep;
           });
 
           document.getElementById("next-button").addEventListener("click", () => {
-            if (currentStep < 7) currentStep++;
+            if (currentStep < 6) currentStep++; // Adjusted for the number of layers
             document.getElementById("current-step").textContent = currentStep;
+          });
+
+          // Submit the order
+          completeOrderButton.addEventListener("click", async () => {
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            const shoeSize = document.getElementById("shoe-size").value;
+            const address = document.getElementById("address").value;
+
+            // Validate input fields
+            if (!name || !email || !shoeSize || !address) {
+              alert("Please fill in all fields!");
+              return;
+            }
+
+            // Check if all colors are selected or have valid defaults
+            let allColorsValid = true; // Flag to check color validity
+            for (const layer of Object.values(shoeConfig)) {
+              // If color is null and material is 'none selected', we don't require a color
+              if (layer.color === null && layer.material === 'none selected') {
+                continue; // Allow this case
+              }
+              // If the color is not set, we need to prompt the user
+              if (!layer.color) {
+                alert(`Please select a color for ${layer.material === 'none selected' ? 'material' : layer.material}.`);
+                allColorsValid = false;
+                break;
+              }
+            }
+
+            if (!allColorsValid) {
+              return; // Exit if colors are invalid
+            }
+
+            // Create order data structure based on shoeConfig
+            const orderData = {
+              customerName: name,
+              customerEmail: email,
+              shoeSize: parseInt(shoeSize), // Ensure shoe size is a number
+              layers: {
+                inside: shoeConfig.inside,
+                laces: shoeConfig.laces,
+                outside1: shoeConfig.outside1,
+                outside2: shoeConfig.outside2,
+                sole1: shoeConfig.sole1,
+                sole2: shoeConfig.sole2,
+              },
+            };
+
+            try {
+              const response = await fetch('https://build-configurator-back-end.onrender.com/api/v1/orders', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData),
+              });
+
+              if (response.ok) {
+                const result = await response.json();
+                alert("Order placed successfully!");
+                console.log("API Response:", result);
+                // Optionally clear form and reset config here
+                orderForm.reset();
+                // Reset shoe configuration
+                Object.keys(shoeConfig).forEach(key => {
+                  shoeConfig[key] = { color: null, material: "none selected" }; // Reset to default values
+                });
+                shoeConfigInput.value = JSON.stringify(shoeConfig);
+              } else {
+                const errorData = await response.json();
+                alert(`Error placing order: ${errorData.message}`);
+              }
+            } catch (err) {
+              console.error("API Error:", err);
+              alert("Failed to place order. Please try again later.");
+            }
           });
         });
       </script>
