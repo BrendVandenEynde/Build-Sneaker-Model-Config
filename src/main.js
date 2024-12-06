@@ -263,67 +263,79 @@ document.getElementById('complete-order-button').addEventListener('click', async
     gsap.killTweensOf(compressedShoe.position);
     gsap.killTweensOf(compressedShoe.rotation);
 
-    // Animate the shoe going down into the box and rotating it
+    // Animate the shoe going down into the box
     gsap.to(compressedShoe.position, {
-        y: shoeFinalPositionY, // Move to the desired Y position
-        duration: 4, // Duration of the animation (adjust as needed)
-        ease: "power1.inOut", // Easing function for smoothness
+        y: shoeFinalPositionY,
+        duration: 4,
+        ease: "power1.inOut",
         onComplete: async () => {
-            // Ensure the shoe stays at the final position
-            compressedShoe.position.y = shoeFinalPositionY; // Set final position explicitly
-
-            // Collect order data from input fields
+            compressedShoe.position.y = shoeFinalPositionY;
             const name = document.getElementById('name').value;
-            const shoeSize = document.getElementById('shoe-size').value;
+            const shoeSize = parseFloat(document.getElementById('shoe-size').value);
             const address = document.getElementById('address').value;
-            const emailInput = document.getElementById('email'); // Ensure this matches your actual input field ID
-            const email = emailInput.value;
+            const email = document.getElementById('email').value;
 
-            // Validate the inputs
+            // Validate form inputs
             if (!name || !shoeSize || !address || !validateEmail(email)) {
                 alert("Please fill out all fields correctly before completing the order.");
                 return;
             }
 
+            // Collect layer details from the shoe model
+            const layers = {};
+            stepMapping.forEach(({ layer }) => {
+                const layerData = {
+                    material: "none selected", // Default value
+                    color: "white" // Default color
+                };
+                compressedShoe.traverse((child) => {
+                    if (child.isMesh && child.name === layer) {
+                        layerData.color = child.material.color.getStyle();
+                        if (child.material.map) {
+                            layerData.material = child.material.map.name || "unknown";
+                        }
+                    }
+                });
+                layers[layer] = layerData;
+            });
+
+            // Build order details object
             const orderDetails = {
-                name,
+                customerName: name,
+                customerEmail: email,
                 shoeSize,
-                address,
-                email,
+                layers,
             };
 
-            // Submit order data to API
             try {
                 const response = await fetch('https://build-configurator-back-end.onrender.com/api/v1/orders', {
-                    method: 'POST', // Use POST method for creating new order
+                    method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json', // Send JSON data
+                        'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(orderDetails), // Convert the order data to JSON
+                    body: JSON.stringify(orderDetails),
                 });
 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
+                    throw new Error('Failed to send order: ' + response.statusText);
                 }
 
-                const responseData = await response.json(); // Parse the response as JSON
-
-                // Show confirmation overlay
-                showOverlay(); // Call your function to show the order confirmation overlay
-                console.log("Order successful:", responseData);
+                const responseData = await response.json();
+                console.log("Order successfully created:", responseData);
+                showOverlay(); // Display order confirmation overlay
             } catch (error) {
-                console.error('Error submitting the order:', error);
-                alert("There was an error submitting your order. Please try again.");
+                console.error("Error completing order:", error);
+                alert("There was an issue submitting your order. Please try again.");
             }
-        }
+        },
     });
 
     gsap.to(compressedShoe.rotation, {
-        x: 0, // Set the X rotation to 0 (flat)
-        y: 0, // You can also adjust Y if needed
-        z: 0, // You can also adjust Z if needed
-        duration: 4, // Match the duration to the position animation
-        ease: "power1.inOut" // Easing function for smoothness
+        x: 0,
+        y: 0,
+        z: 0,
+        duration: 4,
+        ease: "power1.inOut",
     });
     showOverlay(); // Show overlay after order completion
 });
