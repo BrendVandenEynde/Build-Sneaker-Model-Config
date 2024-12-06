@@ -90,8 +90,13 @@
           const colorsDiv = document.querySelector(".colors");
           const materialsDisplay = document.getElementById("materials-section");
           const shoeConfigInput = document.getElementById("shoe-configuration");
-          const orderForm = document.getElementById("order-form");
           const completeOrderButton = document.getElementById("complete-order-button");
+
+          // Input fields
+          const nameInput = document.getElementById("name");
+          const emailInput = document.getElementById("email");
+          const shoeSizeInput = document.getElementById("shoe-size");
+          const addressInput = document.getElementById("address");
 
           let currentStep = 1;
 
@@ -152,12 +157,20 @@
             document.getElementById("current-step").textContent = currentStep;
           });
 
+          // Function to reset input fields after successful order
+          function resetFields() {
+            nameInput.value = "";
+            emailInput.value = "";
+            shoeSizeInput.value = "";
+            addressInput.value = "";
+          }
+
           // Submit the order
           completeOrderButton.addEventListener("click", async () => {
-            const name = document.getElementById("name").value;
-            const email = document.getElementById("email").value;
-            const shoeSize = document.getElementById("shoe-size").value;
-            const address = document.getElementById("address").value;
+            const name = nameInput.value;
+            const email = emailInput.value;
+            const shoeSize = shoeSizeInput.value;
+            const address = addressInput.value;
 
             // Validate input fields
             if (!name || !email || !shoeSize || !address) {
@@ -189,6 +202,7 @@
               customerName: name,
               customerEmail: email,
               shoeSize: parseInt(shoeSize), // Ensure shoe size is a number
+              address: address, // Added address to orderData
               layers: {
                 inside: shoeConfig.inside,
                 laces: shoeConfig.laces,
@@ -212,8 +226,8 @@
                 const result = await response.json();
                 alert("Order placed successfully!");
                 console.log("API Response:", result);
-                // Optionally clear form and reset config here
-                orderForm.reset();
+                // Clear the input fields and reset configuration
+                resetFields();
                 // Reset shoe configuration
                 Object.keys(shoeConfig).forEach(key => {
                   shoeConfig[key] = { color: null, material: "none selected" }; // Reset to default values
