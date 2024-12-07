@@ -319,7 +319,6 @@ document.getElementById('complete-order-button').addEventListener('click', async
                 resetFields(); // Reset the fields here after showing the overlay
             } catch (error) {
                 console.error("Error completing order:", error);
-                alert("There was an issue submitting your order. Please try again.");
             }
         },
     });
