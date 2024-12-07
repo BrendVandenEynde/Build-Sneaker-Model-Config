@@ -41,24 +41,15 @@
           <a href="#" data-color="gray" class="color" style="background-color: gray;"></a>
         </div>
         <div class="materials-display" id="materials-section">
-          <a href="#" data-material="army" class="material"
-            style="background-image: url('/shoeMaterial/army.jpg');"></a>
-          <a href="#" data-material="crocodile" class="material"
-            style="background-image: url('/shoeMaterial/crocodile.jpg');"></a>
-          <a href="#" data-material="glitter" class="material"
-            style="background-image: url('/shoeMaterial/glitter.jpg');"></a>
-          <a href="#" data-material="leather" class="material"
-            style="background-image: url('/shoeMaterial/leather.jpg');"></a>
-          <a href="#" data-material="leopard" class="material"
-            style="background-image: url('/shoeMaterial/leopard.jpg');"></a>
-          <a href="#" data-material="blocked" class="material"
-            style="background-image: url('/shoeMaterial/blocked.jpg');"></a>
-          <a href="#" data-material="zebra" class="material"
-            style="background-image: url('/shoeMaterial/zebra.jpg');"></a>
-          <a href="#" data-material="flower" class="material"
-            style="background-image: url('/shoeMaterial/flower.jpg');"></a>
-          <a href="#" data-material="pizza" class="material"
-            style="background-image: url('/shoeMaterial/pizza.jpg');"></a>
+          <a href="#" data-material="army" class="material" style="background-image: url('/shoeMaterial/army.jpg');"></a>
+          <a href="#" data-material="crocodile" class="material" style="background-image: url('/shoeMaterial/crocodile.jpg');"></a>
+          <a href="#" data-material="glitter" class="material" style="background-image: url('/shoeMaterial/glitter.jpg');"></a>
+          <a href="#" data-material="leather" class="material" style="background-image: url('/shoeMaterial/leather.jpg');"></a>
+          <a href="#" data-material="leopard" class="material" style="background-image: url('/shoeMaterial/leopard.jpg');"></a>
+          <a href="#" data-material="blocked" class="material" style="background-image: url('/shoeMaterial/blocked.jpg');"></a>
+          <a href="#" data-material="zebra" class="material" style="background-image: url('/shoeMaterial/zebra.jpg');"></a>
+          <a href="#" data-material="flower" class="material" style="background-image: url('/shoeMaterial/flower.jpg');"></a>
+          <a href="#" data-material="pizza" class="material" style="background-image: url('/shoeMaterial/pizza.jpg');"></a>
         </div>
       </div>
 
@@ -79,6 +70,7 @@
           <textarea id="address" placeholder="Street, house number, village, postal code"></textarea>
 
           <input type="hidden" id="shoe-configuration">
+          <input type="hidden" id="model-type" value="sneaker">
 
           <button id="complete-order-button">Complete Order</button>
         </div>
@@ -90,6 +82,7 @@
           const colorsDiv = document.querySelector(".colors");
           const materialsDisplay = document.getElementById("materials-section");
           const shoeConfigInput = document.getElementById("shoe-configuration");
+          const modelTypeInput = document.getElementById("model-type");
           const completeOrderButton = document.getElementById("complete-order-button");
 
           // Input fields
@@ -171,10 +164,17 @@
             const email = emailInput.value;
             const shoeSize = shoeSizeInput.value;
             const address = addressInput.value;
+            const modelType = modelTypeInput.value; // Get model type
 
             // Validate input fields
             if (!name || !email || !shoeSize || !address) {
               alert("Please fill in all fields!");
+              return;
+            }
+
+            // Validate model type
+            if (!['sneaker', 'heel'].includes(modelType)) {
+              alert("Invalid model type!");
               return;
             }
 
@@ -183,63 +183,46 @@
             for (const layer of Object.values(shoeConfig)) {
               // If color is null and material is 'none selected', we don't require a color
               if (layer.color === null && layer.material === 'none selected') {
-                continue; // Allow this case
-              }
-              // If the color is not set, we need to prompt the user
-              if (!layer.color) {
-                alert(`Please select a color for ${layer.material === 'none selected' ? 'material' : layer.material}.`);
                 allColorsValid = false;
                 break;
               }
             }
 
             if (!allColorsValid) {
-              return; // Exit if colors are invalid
+              alert("Please select colors for all layers!");
+              return;
             }
 
-            // Create order data structure based on shoeConfig
+            // Prepare order data
             const orderData = {
               customerName: name,
               customerEmail: email,
-              shoeSize: parseInt(shoeSize), // Ensure shoe size is a number
-              address: address, // Added address to orderData
-              layers: {
-                inside: shoeConfig.inside,
-                laces: shoeConfig.laces,
-                outside1: shoeConfig.outside1,
-                outside2: shoeConfig.outside2,
-                sole1: shoeConfig.sole1,
-                sole2: shoeConfig.sole2,
-              },
+              shoeSize,
+              address,
+              modelType,
+              layers: shoeConfig
             };
 
+            // Send order data to the server
             try {
               const response = await fetch('https://build-configurator-back-end.onrender.com/api/v1/orders', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(orderData),
+                body: JSON.stringify(orderData)
               });
 
               if (response.ok) {
-                const result = await response.json();
                 alert("Order placed successfully!");
-                console.log("API Response:", result);
-                // Clear the input fields and reset configuration
                 resetFields();
-                // Reset shoe configuration
-                Object.keys(shoeConfig).forEach(key => {
-                  shoeConfig[key] = { color: null, material: "none selected" }; // Reset to default values
-                });
-                shoeConfigInput.value = JSON.stringify(shoeConfig);
               } else {
                 const errorData = await response.json();
-                alert(`Error placing order: ${errorData.message}`);
+                alert(`Error: ${errorData.message}`);
               }
-            } catch (err) {
-              console.error("API Error:", err);
-              alert("Failed to place order. Please try again later.");
+            } catch (error) {
+              console.error("Error submitting order:", error);
+              alert("There was an error placing your order. Please try again later.");
             }
           });
         });
