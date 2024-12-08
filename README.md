@@ -30,7 +30,6 @@ This project utilizes the following technologies:
 
 ## Screenshot
 
-*(Add a screenshot of your project here)*  
 ![Screenshot Placeholder](./public/assets/SneakerConfigScreenshot.png)
 
 > **Tip:** To replace the placeholder above, add your screenshot to the `assets` folder and update the file path accordingly.
