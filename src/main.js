@@ -70,13 +70,6 @@ gltfLoader.load('/model/shoeBoxSwear.glb', (gltf) => {
         });
     }
 
-    // Ensure the box lid name is correct
-    shoeBox.traverse((child) => {
-        if (child.isMesh) {
-            console.log('Mesh name:', child.name); // Log mesh names
-        }
-    });
-
     openBoxLid(); // Open the box lid by default
 
     // Create a clock for the animation loop
@@ -248,12 +241,12 @@ function showOverlay() {
     overlay.style.display = 'flex';
     overlay.style.alignItems = 'center';
     overlay.style.justifyContent = 'center';
-    overlay.textContent = "Your order has been send!"; // Customize this text if needed
+    overlay.textContent = "Your order has been send!";
     document.body.appendChild(overlay);
 }
 
-// Final position of the shoe when it goes into the box
-const shoeFinalPositionY = -0.9; // Adjust this value to ensure it's inside the box
+// Final position of the shoe when it goes into the box (animation)
+const shoeFinalPositionY = -0.9;
 
 document.getElementById('complete-order-button').addEventListener('click', async () => {
     // Close the box lid before completing the order
@@ -336,9 +329,8 @@ document.getElementById('complete-order-button').addEventListener('click', async
 
 // Function to open the box lid
 function openBoxLid() {
-    console.log('Opening the box lid');
     shoeBox.traverse((child) => {
-        if (child.isMesh && child.name === "Plane_Plane_002_Material_001_TOP_0") { // Updated name
+        if (child.isMesh && child.name === "Plane_Plane_002_Material_001_TOP_0") {
             // Use GSAP to animate the rotation to -120 degrees
             gsap.to(child.rotation, {
                 x: -120 * (Math.PI / 180), // Open to -120 degrees
@@ -356,7 +348,7 @@ function openBoxLid() {
 function closeBoxLid() {
     console.log('Closing the box lid');
     shoeBox.traverse((child) => {
-        if (child.isMesh && child.name === "Plane_Plane_002_Material_001_TOP_0") { // Updated name
+        if (child.isMesh && child.name === "Plane_Plane_002_Material_001_TOP_0") {
             // Use GSAP to animate the rotation to 0 degrees
             gsap.to(child.rotation, {
                 x: 0 * (Math.PI / 180), // Close to 0 degrees

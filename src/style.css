@@ -17,8 +17,8 @@ header {
   padding: 0 1rem;
 }
 
-#schoe-configurator{
-  font-family: 'Helvetica', sans-serif;  
+#schoe-configurator {
+  font-family: 'Helvetica', sans-serif;
 }
 
 h1 {
@@ -67,7 +67,7 @@ h1 {
 }
 
 #prev-button:hover,
-#next-button:hover{
+#next-button:hover {
   background: #6af244;
   color: white;
   border: 2px solid #000000;
