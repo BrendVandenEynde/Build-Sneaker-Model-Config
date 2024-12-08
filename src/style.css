@@ -17,6 +17,10 @@ header {
   padding: 0 1rem;
 }
 
+#schoe-configurator{
+  font-family: 'Helvetica', sans-serif;  
+}
+
 h1 {
   font-family: 'Helvetica', sans-serif;
   font-size: 24px;
@@ -57,7 +61,6 @@ h1 {
 
 h1#main-text {
   font-size: 18px;
-  font-family: 'Helvetica', sans-serif;
   margin: 0;
   text-align: center;
   flex: 1;
