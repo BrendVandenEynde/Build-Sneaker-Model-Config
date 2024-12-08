@@ -45,12 +45,10 @@ Follow these steps to get started:
 
 2. Install dependencies:
 bash
-Code kopiëren
 npm install
 
 3. Start the development server:
 bash
-Code kopiëren
 npm run dev
 
 4. Open your browser at http://localhost:3000 to view the app.
