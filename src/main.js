@@ -250,6 +250,12 @@ function showOverlay() {
     overlay.style.justifyContent = 'center';
     overlay.textContent = "Your order has been send!"; // Customize this text if needed
     document.body.appendChild(overlay);
+
+        // Add event listener for the close button
+        const closeButton = overlay.querySelector('.close-button');
+        closeButton.addEventListener('click', () => {
+            document.body.removeChild(overlay); // Remove the overlay
+        });
 }
 
 // Final position of the shoe when it goes into the box
