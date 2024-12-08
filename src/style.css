@@ -63,6 +63,7 @@ h1 {
   background-color: #000000;
   color: #6af244;
   border: 2px solid transparent;
+  width: 100px;
 }
 
 #prev-button:hover,
@@ -70,12 +71,6 @@ h1 {
   background: #6af244;
   color: white;
   border: 2px solid #000000;
-}
-
-#material-button{
-  background-color: #000000;
-  color: #6af244;
-  border: 2px solid #6af244;
 }
 
 h1#main-text {
