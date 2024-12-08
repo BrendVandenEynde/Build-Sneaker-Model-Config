@@ -20,12 +20,12 @@ const environmentMap = cubeTextureLoader.load([
 scene.background = environmentMap;
 
 const stepMapping = [
-    { name: "Edit Laces", layer: "laces" },
-    { name: "Edit Inside", layer: "inside" },
-    { name: "Edit Shoe Cover", layer: "outside_1" },
-    { name: "Edit heel tab", layer: "outside_2" },
+    { name: "Change Laces", layer: "laces" },
+    { name: "Change Inside", layer: "inside" },
+    { name: "Change Shoe Cover", layer: "outside_1" },
+    { name: "Change heel tab", layer: "outside_2" },
     { name: "Quarter + inner outlining ", layer: "sole_1" },
-    { name: "Edit Sole", layer: "sole_2" }
+    { name: "Change Sole", layer: "sole_2" }
 ];
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
